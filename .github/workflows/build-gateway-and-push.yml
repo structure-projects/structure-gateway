@@ -40,7 +40,7 @@ jobs:
 
       - name: Build project
         run: |
-          mvn clean install -Dmaven.test.skip=true -Drevision=$RELEASE_VERSION -s  
+          mvn clean package -Dmaven.test.skip=true -Drevision=$RELEASE_VERSION -s  
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
