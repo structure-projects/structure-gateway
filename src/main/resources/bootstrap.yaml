@@ -1,0 +1,53 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: dev
+  application:
+    name: structure-gateway
+  cloud:
+    nacos:
+      server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
+      discovery:
+        namespace: ${NACOS_NAMESPACE:5a4e4c1f-beda-4ae5-a3d7-428950e7473b}
+        metadata:
+          version: 1.0.0 # 服务实例的版本号，可用于灰度发布
+        group: ${NACOC_GROUP:${spring.profiles.active}}
+        enabled: ${NACOS_DISCOVERY_ENABLE:false}
+        username: ${NACOS_USERNAME:structure}
+        password: ${NACOS_PASSWORD:structure}
+      config:
+        server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
+        namespace: ${NACOS_NAMESPACE:5a4e4c1f-beda-4ae5-a3d7-428950e7473b}
+        group: ${NACOC_GROUP:${spring.profiles.active}}
+        name: ${spring.application.name}
+        file-extension: yaml
+        enabled: ${NACOS_CONFIG_ENABLE:false}
+      username: ${NACOS_USERNAME:structure}
+      password: ${NACOS_PASSWORD:structure}
+management:
+  endpoint:
+    health:
+      show-details: always
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: poc
+---
+spring:
+  config:
+    activate:
+      on-profile: pro
+management:
+  endpoint:
+    health:
+      show-details: always
+  server:
+    port: 7777

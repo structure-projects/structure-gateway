@@ -1,0 +1,130 @@
+spring:
+  application:
+    name: structure-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
+      discovery:
+        namespace: ${NACOS_NAMESPACE:5a4e4c1f-beda-4ae5-a3d7-428950e7473b}
+        metadata:
+          version: 1.0.0
+        group: ${NACOS_GROUP:${spring.profiles.active}}
+        enabled: ${NACOS_DISCOVERY_ENABLE:false}
+        username: ${NACOS_USERNAME:structure}
+        password: ${NACOS_PASSWORD:structure}
+      config:
+        server-addr: ${NACOS_SERVER:nacos.structured.cn:8848}
+        namespace: ${NACOS_NAMESPACE:5a4e4c1f-beda-4ae5-a3d7-428950e7473b}
+        group: ${NACOS_GROUP:${spring.profiles.active}}
+        name: ${spring.application.name}
+        file-extension: yaml
+        enabled: ${NACOS_CONFIG_ENABLE:false}
+      username: ${NACOS_USERNAME:structure}
+      password: ${NACOS_PASSWORD:structure}
+    gateway:
+      routes:
+        - id: auth-center
+          uri: http://localhost:18002
+          predicates:
+            - Path=/auth/**
+        - id: user-center
+          uri: http://localhost:18001
+          predicates:
+            - Path=/user/**
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+  redis:
+    host: ${REDIS_HOST:172.24.20.15}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:123456}
+    database: ${REDIS_DATABASE:0}
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+        max-wait: -1ms
+  rabbitmq:
+    host: ${RABBITMQ_HOST:172.24.20.15}
+    port: ${RABBITMQ_PORT:5672}
+    username: ${RABBITMQ_USERNAME:root}
+    password: ${RABBITMQ_PASSWORD:123456}
+    virtual-host: ${RABBITMQ_VHOST:/}
+    listener:
+      simple:
+        acknowledge-mode: manual
+        prefetch: 1
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+
+server:
+  port: 18000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+structure:
+  gateway:
+    token-check:
+      enabled: true
+      min-token-length: 20
+    tenant-identification:
+      enabled: true
+      default-tenant-id: default
+      max-tenant-id-length: 64
+    rate-limit:
+      enabled: true
+      whitelist-tenants:
+        - 1
+        - 2
+    replay-check:
+      enabled: true
+      timestamp-tolerance-ms: 300000
+      require-timestamp: true
+      require-signature: false
+      require-nonce: false
+      min-nonce-length: 8
+      max-nonce-length: 64
+      min-signature-length: 32
+      nonce-expire-minutes: 10
+    trace-config:
+      enabled: true
+      require-request-id: true
+    excluded-paths:
+      - /auth/**
+      - /actuator/**
+
+logging:
+  level:
+    cn.structured.cloud.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: poc
+---
+spring:
+  config:
+    activate:
+      on-profile: pro
